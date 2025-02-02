@@ -267,7 +267,8 @@ const SideModal = ({
               initialViewState={{
                 longitude: mapCenter.lng,
                 latitude: mapCenter.lat,
-                zoom: 10,
+                zoom: 12,
+                minZoom: 10,
                 pitch: 0,
                 bearing: 0,
               }}

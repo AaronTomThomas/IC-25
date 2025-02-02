@@ -3,6 +3,8 @@ import DeckGL from "@deck.gl/react";
 import { ScatterplotLayer, LineLayer } from "@deck.gl/layers";
 import { Map } from "react-map-gl/maplibre";
 import axios from "axios";
+import BoroughDeploymentView from "./BoroughDeploymentView";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 interface Message {
   id: string;
@@ -20,9 +22,10 @@ const MessageBox = ({ messages }: { messages: Message[] }) => {
           background: "rgba(50, 50, 50, 0.9)",
           padding: "20px",
           width: "100%",
-          color: "#fff",
+          colour: "#fff",
           borderRadius: "12px",
           marginTop: "20px",
+          height: "100px",
           maxHeight: "100px",
           overflowY: "auto",
           scrollbarWidth: "none", // For Firefox
@@ -30,7 +33,8 @@ const MessageBox = ({ messages }: { messages: Message[] }) => {
         }}
       >
         <h4>Messages</h4>
-        <ul
+        <TransitionGroup
+          component="ul"
           style={{
             listStyleType: "none",
             padding: 0,
@@ -38,24 +42,45 @@ const MessageBox = ({ messages }: { messages: Message[] }) => {
           }}
         >
           {messages.map((message, index) => (
-            <li
-              key={index}
-              style={{
-              marginBottom: "10px",
-              background: message.severity === 0 ? "red" : "#007bff",
-              padding: "10px",
-              borderRadius: "5px",
-              color: "#fff",
-              }}
-            >
-              {message.crime} - {new Date(message.id).toLocaleString()}
-            </li>
+            <CSSTransition key={index} timeout={500} classNames="fade">
+              <li
+                style={{
+                  marginBottom: "10px",
+                  background: message.severity === 0 ? "red" : "#007bff",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  colour: "#fff",
+                }}
+              >
+                {message.crime} - {new Date(message.id).toLocaleString()}
+              </li>
+            </CSSTransition>
           ))}
-        </ul>
+        </TransitionGroup>
       </div>
       <style jsx>{`
+        /* Hide scrollbar for Chrome, Safari and Opera */
         div::-webkit-scrollbar {
-          display: none; // For Chrome, Safari, and Opera
+          display: none;
+        }
+        /* Animation for message fade in/out */
+        .fade-enter {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        .fade-enter-active {
+          opacity: 1;
+          transform: translateY(0);
+          transition: opacity 500ms, transform 500ms;
+        }
+        .fade-exit {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .fade-exit-active {
+          opacity: 0;
+          transform: translateY(-20px);
+          transition: opacity 500ms, transform 500ms;
         }
       `}</style>
     </>
@@ -73,12 +98,14 @@ const Dashboard = ({
   handlePredictionResponse,
   handlePredict,
   addMessage,
+  deployments, 
 }) => {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [crimeType, setCrimeType] = useState("");
 
   return (
+    <>
     <div
       style={{
         display: "flex",
@@ -90,13 +117,15 @@ const Dashboard = ({
         position: "absolute",
         height: "20%",
         bottom: "10%",
-        width: "60%",
+        width: "80%",
         left: "2.5%",
         borderRadius: "12px",
       }}
     >
+      
       <div style={{ flex: 1, marginRight: "50px" }}>
         <h3>Dashboard</h3>
+        
         <label style={{ display: "flex", margin: "1rem 0", width: "100%" }}>
           Select Time of Day: {selectedTime}:00
           <input
@@ -115,7 +144,7 @@ const Dashboard = ({
             onClick={handleAddPing}
             style={{
               padding: "10px 20px",
-              background: "#007bff",
+              background: "red",
               color: "white",
               border: "none",
               borderRadius: "5px",
@@ -125,7 +154,7 @@ const Dashboard = ({
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
             }}
             onMouseOver={(e) => (e.currentTarget.style.background = "#0056b3")}
-            onMouseOut={(e) => (e.currentTarget.style.background = "#007bff")}
+            onMouseOut={(e) => (e.currentTarget.style.background = "red")}
           >
             Ping Map
           </button>
@@ -163,7 +192,8 @@ const Dashboard = ({
         </div>
       </div>
       <MessageBox messages={pings} />
-    </div>
+      <BoroughDeploymentView deployments={deployments} />
+    </div></>
   );
 };
 

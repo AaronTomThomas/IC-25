@@ -1,4 +1,4 @@
-Sentinel 🚔
+## Sentinel 🚔
 A police dashboard leveraging DeckGL for powerful data visualisations and AI-driven resource allocation.
 
 Overview
